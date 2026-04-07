@@ -35,6 +35,7 @@ All CLI commands emit JSON to stdout. Human-readable output goes to stderr. This
 | `kb add <json>` | Insert/update entities, people, relations |
 | `kb search "<query>"` | Full-text search with BM25 ranking |
 | `kb pull-fireflies` | Fetch transcript from Fireflies API |
+| `kb format-transcript <path>` | Format raw Fireflies JSON into readable markdown |
 
 ## Just Recipes
 

@@ -15,6 +15,7 @@ from cli.commands.get import get
 from cli.commands.add import add
 from cli.commands.search import search
 from cli.commands.pull_fireflies import pull_fireflies
+from cli.commands.format_transcript import format_transcript
 
 
 @click.group()
@@ -24,7 +25,7 @@ from cli.commands.pull_fireflies import pull_fireflies
     envvar="KB_DIR",
     help="Path to the .knowledge-base/ directory (default: .knowledge-base/).",
 )
-@click.version_option(version="0.2.0", prog_name="knowledge-base")
+@click.version_option(version="0.6.0", prog_name="knowledge-base")
 @click.pass_context
 def cli(ctx: click.Context, kb_dir: str) -> None:
     """Knowledge base CLI — per-project knowledge management."""
@@ -39,6 +40,7 @@ cli.add_command(get)
 cli.add_command(add)
 cli.add_command(search)
 cli.add_command(pull_fireflies, "pull-fireflies")
+cli.add_command(format_transcript, "format-transcript")
 
 
 if __name__ == "__main__":
