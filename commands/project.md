@@ -27,7 +27,7 @@ Look for `context-vault/` in the current directory or parent directories.
 
 ### 3. Create the context vault overview
 
-Write `context-vault/projects/{slug}/overview.md`:
+Write `context-vault/projects/{slug}/ctx-{slug}.md`:
 
 ```yaml
 ---
@@ -53,7 +53,7 @@ paths:
 
 This project is **{Project Name}**.
 
-At session start, read `context-vault/projects/{slug}/overview.md` for full project context — decisions, action items, key people, meeting history, and project documents.
+At session start, read `context-vault/projects/{slug}/ctx-{slug}.md` for full project context — decisions, action items, key people, meeting history, and project documents.
 ```
 
 This rule only loads when Claude reads files inside `projects/{slug}/`, keeping it out of context for other projects.

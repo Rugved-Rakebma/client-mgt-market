@@ -71,7 +71,7 @@ All internal links use Obsidian wikilinks: `[[type/slug|Display Text]]`
 ## Update Steps
 
 1. Write the new entity page in the correct directory
-2. Read the relevant project overview (`context-vault/projects/{project}/overview.md`)
+2. Read the relevant project context page (`context-vault/projects/{project}/ctx-{project}.md`)
 3. Add the new entity as a wikilink in the appropriate section (Decisions, Action Items, etc.)
 4. If a new person is referenced, check if `context-vault/people/{slug}.md` exists — create if not
 5. Update `context-vault/index.md` if the entity type section needs a new row

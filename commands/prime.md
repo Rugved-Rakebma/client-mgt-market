@@ -18,7 +18,7 @@ Look for `context-vault/` in the current directory or parent directories (up to 
 
 Parse the argument:
 
-- **Project name** (e.g., "sales-command", "wa-sales-command"): Read `context-vault/projects/{slug}/overview.md`
+- **Project name** (e.g., "sales-command", "wa-sales-command"): Read `context-vault/projects/{slug}/ctx-{slug}.md`
 - **Person name** (e.g., "Kevin", "Reuben"): Search `context-vault/people/` for matching files, read the person page
 - **Meeting date** (e.g., "april 7", "2026-04-07"): Search `context-vault/docs/meetings/` for matching files, read the meeting doc
 - **Topic/concept** (e.g., "360dialog", "onboarding", "bigquery"): Grep across the vault for relevant entities, read the top results

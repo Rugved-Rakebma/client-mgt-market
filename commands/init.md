@@ -61,15 +61,32 @@ Report how many project rules were created.
 
 ### 5. Update CLAUDE.md
 
-If `CLAUDE.md` does not contain a "## Context Vault" section:
-- Append the section from the plugin template
+If `CLAUDE.md` does not exist, create it with the Context Vault section from the plugin template.
 
-If it already contains the section, skip.
+If `CLAUDE.md` exists but does not contain a "## Context Vault" section, append the section from the plugin template.
 
-### 6. Report
+If it already contains the section, replace ONLY that section (from `## Context Vault` to the next `## ` heading or end of file) with the latest template. This ensures the section stays current without touching other content.
+
+### 6. Configure statusline
+
+Read `.claude/settings.json` (or `.claude/settings.local.json`). If no `statusLine` config exists, add:
+
+```json
+{
+  "statusLine": {
+    "type": "command",
+    "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/statusline.py\" context-vault/"
+  }
+}
+```
+
+If the file already has other settings, merge the `statusLine` key without overwriting existing config. If a `statusLine` config already exists, skip.
+
+### 7. Report
 
 Summary of what was done:
 - Vault: created / already existed
 - Rules: N created, N already existed
 - CLAUDE.md: updated / already current
+- Statusline: configured / already existed
 - Remind user to run `/ctx:project <name>` to add new projects

@@ -14,11 +14,10 @@ Two layers:
 ## Plugin Structure
 
 ```
-commands/           # /ctx:prime, /ctx:project, /ctx:ingest, /ctx:status, /ctx:maintain, /ctx:catalog
+commands/           # /ctx:init, /ctx:prime, /ctx:project, /ctx:ingest, /ctx:status, /ctx:maintain, /ctx:catalog
 skills/             # context-prime, context-status, context-update (model-invocable)
 scripts/            # pull-fireflies.py, format-transcript.py, statusline.py
 templates/          # CLAUDE.md section, rules, config — copied on install
-hooks/hooks.json    # Plugin hooks
 settings.json       # StatusLine config
 ```
 

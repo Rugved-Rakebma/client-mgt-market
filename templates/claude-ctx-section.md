@@ -4,7 +4,7 @@ Client context system at `context-vault/`. Markdown wiki with Obsidian-compatibl
 
 ### Structure
 - `context-vault/index.md` — Master navigation
-- `context-vault/projects/{slug}/overview.md` — Project prime pages
+- `context-vault/projects/{slug}/ctx-{slug}.md` — Project prime pages
 - `context-vault/decisions/`, `action-items/`, `strategies/`, `requirements/`, `people/` — Entity pages
 - `context-vault/docs/meetings/` — Meeting records with backlinks
 

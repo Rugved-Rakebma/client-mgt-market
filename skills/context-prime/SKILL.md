@@ -15,7 +15,7 @@ Auto-prime Claude with project context. Called proactively at session start when
 
 2. If no project-level rule exists, look for `context-vault/index.md` in the current directory or parent directories (up to 3 levels).
 
-3. Read the project overview at `context-vault/projects/{slug}/overview.md`:
+3. Read the project context page at `context-vault/projects/{slug}/ctx-{slug}.md`:
    - Note the project status and priority
    - Note key people and their roles
    - Scan open action items

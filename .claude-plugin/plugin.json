@@ -1,11 +1,10 @@
 {
   "name": "ctx",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Client context system — file-first wiki with project-scoped auto-priming, meeting ingestion, and Obsidian-compatible knowledge graph.",
   "author": { "name": "Rugved Ambekar" },
   "license": "MIT",
   "keywords": ["context", "client", "wiki", "meetings", "fireflies", "obsidian"],
   "commands": "./commands/",
-  "skills": "./skills/",
-  "settings.json": "./settings.json"
+  "skills": "./skills/"
 }

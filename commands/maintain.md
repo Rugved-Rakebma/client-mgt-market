@@ -11,7 +11,7 @@ Health check the context vault. Find structural issues and propose fixes.
 
 ### 1. Orphan entities
 
-Scan all entity files in `decisions/`, `action-items/`, `strategies/`, `requirements/`. For each, grep across `context-vault/projects/*/overview.md` to check if linked from any project overview.
+Scan all entity files in `decisions/`, `action-items/`, `strategies/`, `requirements/`. For each, grep across `context-vault/projects/*/ctx-*.md` to check if linked from any project context page.
 
 Report unlinked entities.
 
