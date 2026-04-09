@@ -5,9 +5,9 @@
   },
   "plugins": [
     {
-      "name": "k-base",
+      "name": "client-ctx-sys",
       "source": "./",
-      "description": "Per-project knowledge base with DB-first storage, meeting ingestion, and full-text search."
+      "description": "Client context system — file-first wiki with project-scoped auto-priming, meeting ingestion, and Obsidian-compatible knowledge graph."
     }
   ]
 }

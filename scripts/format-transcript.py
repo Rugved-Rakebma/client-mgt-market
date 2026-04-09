@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+"""Format raw Fireflies JSON into speaker-attributed markdown. Outputs JSON to stdout."""
 from __future__ import annotations
 
 import json
@@ -5,11 +7,8 @@ import sys
 from pathlib import Path
 from typing import Any, Dict, List
 
-import click
-
 
 def _format_time(seconds: float) -> str:
-    """Convert seconds to H:MM:SS or M:SS format."""
     total = int(seconds)
     h = total // 3600
     m = (total % 3600) // 60
@@ -19,22 +18,20 @@ def _format_time(seconds: float) -> str:
     return "{}:{:02d}".format(m, s)
 
 
-@click.command("format-transcript")
-@click.argument("raw_json_path")
-def format_transcript(raw_json_path: str) -> None:
-    """Format a raw Fireflies JSON file into readable markdown.
+def main() -> None:
+    if len(sys.argv) < 2:
+        print(json.dumps({"error": "Usage: format-transcript.py <raw-json-path>"}))
+        sys.exit(1)
 
-    Outputs speaker-attributed transcript to stdout.
-    """
-    path = Path(raw_json_path)
+    path = Path(sys.argv[1])
     if not path.exists():
-        click.echo(json.dumps({"error": "File not found: {}".format(raw_json_path)}, indent=2))
+        print(json.dumps({"error": "File not found: {}".format(sys.argv[1])}))
         sys.exit(1)
 
     try:
         data = json.loads(path.read_text())
     except json.JSONDecodeError as e:
-        click.echo(json.dumps({"error": "Invalid JSON: {}".format(str(e))}, indent=2))
+        print(json.dumps({"error": "Invalid JSON: {}".format(str(e))}))
         sys.exit(1)
 
     sentences = data.get("sentences", [])  # type: List[Dict[str, Any]]
@@ -43,7 +40,7 @@ def format_transcript(raw_json_path: str) -> None:
     date_str = data.get("dateString", data.get("date", ""))
 
     if not sentences:
-        click.echo(json.dumps({"error": "No sentences found in transcript"}), indent=2)
+        print(json.dumps({"error": "No sentences found in transcript"}))
         sys.exit(1)
 
     # Build speaker list
@@ -54,9 +51,8 @@ def format_transcript(raw_json_path: str) -> None:
             if name and name not in speaker_names:
                 speaker_names.append(name)
 
-    # Build formatted transcript — group consecutive sentences by same speaker
+    # Build formatted transcript
     lines = []  # type: List[str]
-
     lines.append("## Speakers\n")
     for name in speaker_names:
         lines.append("- {}".format(name))
@@ -76,30 +72,28 @@ def format_transcript(raw_json_path: str) -> None:
             continue
 
         if speaker != current_speaker:
-            # Flush previous block
             if current_block:
                 lines.append("**{}** ({})\n".format(current_speaker, _format_time(block_start)))
                 lines.append(" ".join(current_block))
                 lines.append("")
-
             current_speaker = speaker
             current_block = [text]
             block_start = start
         else:
             current_block.append(text)
 
-    # Flush last block
     if current_block:
         lines.append("**{}** ({})\n".format(current_speaker, _format_time(block_start)))
         lines.append(" ".join(current_block))
         lines.append("")
 
-    output = "\n".join(lines)
-
-    # Output as JSON with metadata so skills can parse it
-    click.echo(json.dumps({
+    print(json.dumps({
         "title": title,
         "date": date_str,
         "speakers": speaker_names,
-        "transcript_md": output,
+        "transcript_md": "\n".join(lines),
     }, indent=2))
+
+
+if __name__ == "__main__":
+    main()

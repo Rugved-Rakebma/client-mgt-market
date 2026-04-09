@@ -1,9 +1,11 @@
 {
-  "name": "k-base",
-  "version": "0.6.0",
-  "description": "Per-project knowledge base with DB-first storage, meeting ingestion, and full-text search.",
+  "name": "ctx",
+  "version": "1.0.0",
+  "description": "Client context system — file-first wiki with project-scoped auto-priming, meeting ingestion, and Obsidian-compatible knowledge graph.",
   "author": { "name": "Rugved Ambekar" },
   "license": "MIT",
-  "keywords": ["knowledge-base", "meetings", "fireflies", "semantic-search"],
-  "skills": "./skills/"
+  "keywords": ["context", "client", "wiki", "meetings", "fireflies", "obsidian"],
+  "commands": "./commands/",
+  "skills": "./skills/",
+  "settings.json": "./settings.json"
 }
