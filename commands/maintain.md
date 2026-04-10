@@ -1,50 +1,179 @@
 ---
-description: Wiki health check — find orphans, stale items, missing links
+description: Comprehensive context vault maintenance — structural audit, entity health, relationship integrity, and archive cleanup
 disable-model-invocation: true
 ---
 
 # Context Maintain
 
-Health check the context vault. Find structural issues and propose fixes.
+Full maintenance pass on the client context vault. Runs in interactive phases — present findings after each phase, wait for user direction before proceeding. This command keeps the entire client umbrella clean and consistent.
 
-## Checks
+## Phase 1: Structural Audit
 
-### 1. Orphan entities
+Verify alignment between the filesystem and the context vault.
 
-Scan all entity files in `decisions/`, `action-items/`, `strategies/`, `requirements/`. For each, grep across `context-vault/projects/*/ctx-*.md` to check if linked from any project context page.
+### 1a. Project ↔ Directory alignment
 
-Report unlinked entities.
+- List all directories in `projects/` (physical project dirs)
+- List all directories in `context-vault/projects/` (vault project entries)
+- **Flag mismatches:**
+  - Physical project dir exists but no vault entry → "Untracked project"
+  - Vault entry exists but no physical dir → "Phantom project"
+  - Naming inconsistencies between physical dir and vault slug
 
-### 2. Stale action items
+### 1b. Rule file validity
 
-Find action items where `status: "open"` and `created` date is older than 14 days. Present as candidates for status update.
+- For each `.claude/rules/project-*.md`, verify:
+  - The `paths:` glob points to a directory that actually exists
+  - The context page path referenced in the rule body exists
+- Flag rules pointing to nonexistent paths
 
-### 3. Missing wikilinks
+### 1c. Naming consistency
 
-For each entity page, check:
-- Does it have a source wikilink to a meeting doc?
-- If action item, does it have an assignee wikilink to a person page?
-- Does the source meeting doc link back to this entity?
+- Check that vault project slugs match their physical directory names exactly
+- Check that context page files exist in each vault project directory
+- Flag misspellings or mismatches
 
-Report missing bidirectional links.
+### 1d. Stale tooling references
 
-### 4. Duplicate people
+- Check for old justfile with KB CLI recipes
+- Check settings for old `kb-*` or `k-base:*` permissions
+- Check config.yaml for old system references
+- Check CLAUDE.md for outdated sections
+- Check Obsidian workspace files for old paths
 
-Check `context-vault/people/` for potential duplicates (similar names, same first name with different slugs).
+**Present Phase 1 findings. Wait for user direction.**
 
-### 5. Contradictory decisions
+---
 
-Read all decision pages. Flag any that appear to contradict without superseding.
+## Phase 2: Entity Health
 
-### 6. Broken wikilinks
+Audit all entity pages for completeness and issues.
 
-Extract all `[[...]]` patterns from entity pages. Check that the target file exists.
+### 2a. Orphan entities
 
-## Workflow
+Scan all entity files in `decisions/`, `action-items/`, `strategies/`, `requirements/`. For each, check if it's linked from ANY project context page in `context-vault/projects/`.
 
-1. Run all checks
-2. Present findings grouped by check type
-3. For each issue, propose a specific fix
-4. **Wait for approval** before making any changes
-5. Apply approved fixes
-6. Report what was changed
+Report unlinked entities — these need to be assigned to a project or flagged for removal.
+
+### 2b. Duplicate entities
+
+- Scan for entities with very similar titles or slugs across types
+- Check for the same concept captured as both a decision and a strategy
+- Check `context-vault/people/` for duplicate people (similar names, same first name with different slugs, `alias_of` redirect stubs that should have been cleaned up)
+
+### 2c. Stale action items
+
+Find open action items where `created` date is older than 14 days:
+- Propose status update: completed? still open? superseded?
+- Group by owner for easier review
+
+### 2d. Missing frontmatter
+
+Check every entity page for required frontmatter fields:
+- `title`, `type`, `slug` — required on all entities
+- `status` — required on action-items
+- `source` — should exist (null is OK but flag for review)
+- `created`, `updated` — should exist
+
+### 2e. Empty or minimal content
+
+Flag entity pages where the body content is empty or under 20 characters — these are stubs that need filling or removing.
+
+**Present Phase 2 findings. Wait for user direction.**
+
+---
+
+## Phase 3: Relationship Integrity
+
+Verify all connections in the knowledge graph.
+
+### 3a. Broken wikilinks
+
+Extract all `[[...]]` patterns from every `.md` file in the vault. Check that each target file exists. Report broken links with the source file.
+
+### 3b. Missing bidirectional links
+
+For each entity page:
+- Has a `source` in frontmatter → does that meeting doc link back to this entity?
+- Is an action item → does it have an assignee wikilink to a person page?
+- Is linked from a meeting → does the meeting's Knowledge Graph section include it?
+
+For each person page:
+- Are all their assigned action items listed?
+- Are all meetings they attended listed?
+
+### 3c. Cross-project relationships
+
+For each project context page, check the "Related Projects" section:
+- Are upstream/downstream dependencies documented?
+- Do related projects link back?
+- Are there entities shared across projects that should be cross-referenced?
+
+### 3d. People ↔ entity consistency
+
+- Are all action-item slug owners (first name prefix) tracked as people pages?
+- Are meeting participants all tracked as people pages?
+- Flag people referenced in entity content but missing from `context-vault/people/`
+
+**Present Phase 3 findings. Wait for user direction.**
+
+---
+
+## Phase 4: Archive & Cleanup
+
+Keep the active context lean. Move completed/superseded items out of the hot path.
+
+### 4a. Archive completed action items
+
+- Collect all action items with `status: "completed"`
+- Move them to `context-vault/archive/completed-actions.md` — a single document with a table:
+
+```markdown
+| Slug | Title | Owner | Completed | Source |
+```
+
+- Remove completed items from project context pages' "Completed" sections
+- Replace with a one-line reference: `> N completed items — see [[archive/completed-actions|archive]]`
+- Delete the individual completed action-item files (the archive preserves the record)
+
+### 4b. Archive superseded decisions
+
+- Find decisions whose content mentions "superseded", "replaced by", or are marked superseded in project context pages
+- Move to `context-vault/archive/superseded-decisions.md` (same table format)
+- Update project context pages — remove the superseded entry, note the replacement
+- Delete the individual superseded decision files
+
+### 4c. Clean redirect stubs
+
+Find any people pages with `alias_of` frontmatter. If the canonical page exists and is healthy, delete the redirect stub.
+
+### 4d. Rebuild index.md
+
+After all archival:
+- Regenerate entity counts (excluding archived items)
+- Ensure the Projects table is current
+- Remove archived entities from type tables
+- Add an Archive section at the bottom linking to archive files
+
+**Present Phase 4 proposals. Wait for explicit approval before archiving anything.**
+
+---
+
+## Phase 5: Report
+
+Summary of everything done:
+- Structural issues found and fixed
+- Entities audited (orphans resolved, duplicates merged)
+- Relationships repaired (broken links fixed, backlinks added)
+- Items archived (N completed actions, N superseded decisions)
+- Current vault health: entity counts by type, project count, people count
+
+---
+
+## Hard Rules
+
+1. **Never delete without approval** — always present and wait
+2. **Archive, don't destroy** — completed/superseded items go to archive files, not deleted without record
+3. **Fix links before archiving** — ensure all cross-references are valid before moving things
+4. **One phase at a time** — don't run Phase 3 until Phase 2 is resolved
+5. **Report honestly** — if the vault is clean, say so. Don't invent issues.

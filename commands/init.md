@@ -44,22 +44,41 @@ context-vault/
 
 If `context-vault/` already exists, skip and report "vault already exists."
 
-### 3. Install the always-loaded rule
+### 3. Filesystem audit
+
+Before creating any rules, cross-reference the vault against the filesystem:
+
+- List physical project directories: `ls projects/`
+- List vault project entries: `ls context-vault/projects/`
+- Cross-reference and flag:
+  - **Phantom vault projects** — vault entry exists but no physical dir under `projects/`. Warn and do NOT create rules for these.
+  - **Untracked physical projects** — physical dir exists but no vault entry. Report and suggest `/ctx:project`.
+  - **Naming mismatches** — vault slug differs from physical dir name. Report.
+
+For each **valid** project (both vault entry AND physical dir exist):
+- Detect the actual context page filename in the vault project dir (could be `ctx-{slug}.md`, `overview.md`, or something else)
+- Use the detected filename when creating the rule — do not assume the template default
+
+Report the audit results before proceeding.
+
+### 4. Install the always-loaded rule
 
 If `.claude/rules/context-vault.md` does not exist, copy from the plugin template. This rule has empty frontmatter (no `paths:`) so it loads every session.
 
 If it already exists, skip.
 
-### 4. Install project-level rules
+### 5. Install project-level rules
 
-Scan `context-vault/projects/` for existing project directories. For each project that does NOT already have `.claude/rules/project-{slug}.md`:
+For each valid project from the audit (both vault + physical dir):
 
-- Read the project overview to get the title
+If `.claude/rules/project-{slug}.md` does not already exist:
+- Read the project context page to get the title
 - Write `.claude/rules/project-{slug}.md` with `paths:` scoped to `projects/{slug}/**/*`
+- Reference the actual detected filename in the rule body
 
 Report how many project rules were created.
 
-### 5. Update CLAUDE.md
+### 6. Update CLAUDE.md
 
 If `CLAUDE.md` does not exist, create it with the Context Vault section from the plugin template.
 
@@ -67,7 +86,7 @@ If `CLAUDE.md` exists but does not contain a "## Context Vault" section, append 
 
 If it already contains the section, replace ONLY that section (from `## Context Vault` to the next `## ` heading or end of file) with the latest template. This ensures the section stays current without touching other content.
 
-### 6. Configure statusline
+### 7. Configure statusline
 
 Read `.claude/settings.json` (or `.claude/settings.local.json`). If no `statusLine` config exists, add:
 
@@ -82,11 +101,27 @@ Read `.claude/settings.json` (or `.claude/settings.local.json`). If no `statusLi
 
 If the file already has other settings, merge the `statusLine` key without overwriting existing config. If a `statusLine` config already exists, skip.
 
-### 7. Report
+### 8. Stale footprint cleanup (migrated projects)
+
+Check for remnants of the old KB CLI system. Only relevant for projects migrating from the previous `k-base` plugin:
+
+- Justfile with `kb-*` or `kb_cli` recipes → report
+- `.claude/settings.local.json` or `.claude/settings.json` with `kb-*` or `k-base:*` permissions → report
+- `config.yaml` with `fireflies:` section from old system → report
+- CLAUDE.md with `## Knowledge Base` section (old, not `## Context Vault`) → report
+- Obsidian workspace files (`.obsidian/workspace.json`) with `.knowledge-base/` or `knowledge-base/` paths → report
+- `people/` alias stubs with `alias_of` frontmatter → report (should be deleted if canonical page exists)
+- `<!-- kb-enriched:v1 -->` HTML comments in entity pages → note (cosmetic, low priority)
+
+Present all findings. Propose cleanup actions. **Wait for approval** before making any changes.
+
+### 9. Report
 
 Summary of what was done:
 - Vault: created / already existed
-- Rules: N created, N already existed
-- CLAUDE.md: updated / already current
+- Filesystem audit: N valid projects, N phantoms, N untracked
+- Rules: N created, N already existed, N skipped (phantom)
+- CLAUDE.md: created / updated / already current
 - Statusline: configured / already existed
+- Stale cleanup: N items found / cleaned / skipped
 - Remind user to run `/ctx:project <name>` to add new projects
