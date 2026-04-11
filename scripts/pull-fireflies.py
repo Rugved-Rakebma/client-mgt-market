@@ -14,6 +14,27 @@ from typing import Any, Dict, List, Optional
 FIREFLIES_API_URL = "https://api.fireflies.ai/graphql"
 FIREFLIES_VIEW_PREFIX = "https://app.fireflies.ai/view/"
 
+
+def _load_dotenv() -> None:
+    """Load .env from current directory or parent directories (up to 3 levels)."""
+    cwd = Path.cwd()
+    for parent in [cwd] + list(cwd.parents)[:3]:
+        env_file = parent / ".env"
+        if env_file.exists():
+            try:
+                for line in env_file.read_text().splitlines():
+                    line = line.strip()
+                    if not line or line.startswith("#") or "=" not in line:
+                        continue
+                    key, _, value = line.partition("=")
+                    key = key.strip()
+                    value = value.strip().strip("'\"")
+                    if key and key not in os.environ:
+                        os.environ[key] = value
+            except Exception:
+                pass
+            break
+
 QUERY_LIST = """
 query { transcripts { id title dateString date } }
 """
@@ -104,6 +125,7 @@ def cmd_pull(target_id: str, vault_dir: str) -> None:
 
 
 def main() -> None:
+    _load_dotenv()
     import argparse
     parser = argparse.ArgumentParser(description="Pull transcripts from Fireflies.ai")
     parser.add_argument("--latest", action="store_true", help="Pull most recent transcript")

@@ -94,10 +94,12 @@ Read `.claude/settings.json` (or `.claude/settings.local.json`). If no `statusLi
 {
   "statusLine": {
     "type": "command",
-    "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/statusline.py\" context-vault/"
+    "command": "python3 ~/.claude/plugins/cache/rugved-tools/client-ctx-sys/*/scripts/statusline.py context-vault/"
   }
 }
 ```
+
+The shell glob `*` matches the version directory in the plugin cache. The script runs directly from the installed plugin — no copying needed.
 
 If the file already has other settings, merge the `statusLine` key without overwriting existing config. If a `statusLine` config already exists, skip.
 
