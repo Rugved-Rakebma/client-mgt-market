@@ -6,6 +6,7 @@ Line 2: vault state — client name, projects, open items, last meeting (from fi
 from __future__ import annotations
 
 import json
+import os
 import re
 import sys
 from pathlib import Path
@@ -20,6 +21,7 @@ RED = "\033[31m"
 CYAN = "\033[36m"
 WHITE = "\033[37m"
 BOLD = "\033[1m"
+ORANGE = "\033[38;5;208m"
 
 
 def read_stdin_json() -> dict:
@@ -68,7 +70,7 @@ def format_cost(usd: float) -> str:
 
 def format_session_line(data: dict) -> str:
     model = data.get("model", {}).get("display_name", "unknown")
-    pct = float(data.get("context", {}).get("used_percent", 0))
+    pct = float(data.get("context_window", {}).get("used_percentage", 0))
     cost = float(data.get("cost", {}).get("total_cost_usd", 0))
     duration_ms = float(data.get("cost", {}).get("total_duration_ms", 0))
 
@@ -132,16 +134,17 @@ def last_meeting_date(vault: Path) -> str:
     return ""
 
 
-def format_vault_line(vault: Path) -> str:
+def format_vault_line(vault: Path, project_dir: str = "") -> str:
     if not vault.exists():
         return ""
 
+    dir_name = os.path.basename(project_dir) if project_dir else vault.parent.name
     name = get_project_name(vault)
     projects = count_projects(vault)
     open_items = count_open_items(vault)
     last_meeting = last_meeting_date(vault)
 
-    parts = [BOLD + WHITE + name + RESET]
+    parts = [ORANGE + BOLD + "📦 " + dir_name + RESET]
     if projects:
         parts.append("{} projects".format(projects))
     if open_items:
@@ -164,7 +167,8 @@ def main() -> None:
         print(format_session_line(data))
 
     # Line 2: vault info (only if vault exists)
-    vault_line = format_vault_line(vault)
+    project_dir = data.get("workspace", {}).get("project_dir", "")
+    vault_line = format_vault_line(vault, project_dir)
     if vault_line:
         print(vault_line)
     elif not data:
